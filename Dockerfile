@@ -33,7 +33,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && useradd --system --uid 1001 --gid whatsflow whatsflow
 
 COPY --from=builder --chown=whatsflow:whatsflow /app/.next ./.next
-COPY --from=builder --chown=whatsflow:whatsflow /app/public ./public
 COPY --from=builder --chown=whatsflow:whatsflow /app/node_modules ./node_modules
 COPY --from=builder --chown=whatsflow:whatsflow /app/package.json ./package.json
 COPY --from=builder --chown=whatsflow:whatsflow /app/scripts ./scripts
