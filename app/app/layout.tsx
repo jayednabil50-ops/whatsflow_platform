@@ -32,7 +32,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
           <div className="flex items-center justify-between gap-3 px-4 py-3 sm:px-6">
             {/* Left: brand (mobile) + search */}
             <div className="flex items-center gap-3 flex-1 min-w-0">
-              <Link href="/app" className="font-bold text-sm tracking-tight lg:hidden text-foreground shrink-0">
+              <Link href={"/app" as never} className="font-bold text-sm tracking-tight lg:hidden text-foreground shrink-0">
                 {BRAND}
               </Link>
               <div className="hidden sm:flex min-w-0 max-w-xs flex-1 items-center gap-2 rounded-lg border border-border bg-muted/50 px-3 py-2 text-sm text-muted-foreground hover:border-accent/30 transition-colors">

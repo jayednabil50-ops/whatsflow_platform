@@ -1,0 +1,20 @@
+
+> whatsflow-platform@0.1.0 dev
+> next dev
+
+   ▲ Next.js 15.0.4
+   - Local:        http://localhost:3000
+   - Experiments (use with caution):
+     · typedRoutes
+
+ ✓ Starting...
+ ✓ Ready in 2.6s
+ ○ Compiling /api/whatsapp/sessions ...
+ ✓ Compiled /api/whatsapp/sessions in 1834ms (386 modules)
+ GET /api/whatsapp/sessions 200 in 2727ms
+[SESSION] Created: sess_1777984559950_zb2j6u Total: 1
+ POST /api/whatsapp/sessions 201 in 13ms
+ ✓ Compiled /api/whatsapp/sessions/[id]/qr in 310ms (388 modules)
+[SESSION] Get: sess_1777984559950_zb2j6u Found: false Total: 0
+ POST /api/whatsapp/sessions/sess_1777984559950_zb2j6u/qr 404 in 1206ms
+^C^C
