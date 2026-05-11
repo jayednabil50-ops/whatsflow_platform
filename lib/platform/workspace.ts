@@ -117,6 +117,22 @@ async function getTrustedUserEmail(userId: string): Promise<string | null> {
   return data.user?.email?.trim().toLowerCase() || null;
 }
 
+export const PLAN_SESSION_LIMITS: Record<string, number | null> = {
+  starter: 1,
+  pro: 3,
+  annual: 3,
+  unlimited: null,
+  admin_override: null
+};
+
+export function getSessionLimitForPlan(plan?: string | null): number | null {
+  const key = (plan || "").toLowerCase();
+  if (key in PLAN_SESSION_LIMITS) {
+    return PLAN_SESSION_LIMITS[key];
+  }
+  return null;
+}
+
 export function getSessionLimit(plan?: string | null): number | null {
   switch ((plan || "").toLowerCase()) {
     case "trial":
@@ -247,12 +263,14 @@ export function getWorkspaceEntitlement(
 
   if (isActiveSubscription(subscription)) {
     const periodEnd = subscription?.current_period_end || null;
+    const planKey = (subscription?.plan || "").toLowerCase();
+    const sessionLimit = getSessionLimitForPlan(planKey);
     return {
       mode: "subscription",
       hasActiveAccess: true,
-      isUnlimited: false,
+      isUnlimited: sessionLimit === null,
       planLabel: `${formatPlanName(subscription?.plan)} active`,
-      sessionLimit: null,
+      sessionLimit,
       expiresAt: periodEnd,
       trialEndsAt: null,
       subscriptionEndsAt: periodEnd,

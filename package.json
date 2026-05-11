@@ -12,6 +12,7 @@
     "start:render": "node scripts/render-start.js",
     "start:next": "next start",
     "worker:start": "tsx scripts/whatsapp-worker.ts",
+    "setup:admin": "node scripts/setup-admin.js",
     "supervisor:start": "powershell -ExecutionPolicy Bypass -File .\\scripts\\start-whatsflow-supervisor.ps1",
     "supervisor:stop": "powershell -ExecutionPolicy Bypass -File .\\scripts\\stop-whatsflow-supervisor.ps1",
     "lint": "next lint",

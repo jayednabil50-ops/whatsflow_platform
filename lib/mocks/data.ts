@@ -227,20 +227,69 @@ export const useCases = [
 
 export const pricingPlans = [
   {
-    name: "2-day trial",
-    price: "$0",
-    sessions: "1 connected number during trial",
-    highlight: true,
-    description: "Start free, connect one WhatsApp number, and upgrade before the trial ends to keep it active.",
+    name: "Starter",
+    price: "৳299",
+    duration: "/month",
+    sessions: "1 WhatsApp connection",
+    description: "Perfect for individuals starting out — connect one number and explore the full API.",
     features: [
-      "1 session during trial",
-      "Session API key",
-      "No per-message fee",
-      "Full REST API",
-      "Realtime webhooks",
-      "Account Protection Mode",
-      "Webhook replay console",
-      "Message analytics"
+      "1 WhatsApp session",
+      "Full REST API access",
+      "Real-time webhooks",
+      "Text & media messaging",
+      "Contact management",
+      "Email support"
+    ]
+  },
+  {
+    name: "Pro",
+    price: "৳399",
+    duration: "/2 months",
+    sessions: "3 WhatsApp connections",
+    popular: true,
+    description: "Best for small teams — three numbers, two months, full features.",
+    features: [
+      "3 WhatsApp sessions",
+      "Full REST API access",
+      "Real-time webhooks",
+      "Group messaging",
+      "Polls, stickers, reactions",
+      "Priority email support"
+    ]
+  },
+  {
+    name: "Annual",
+    price: "৳1,000",
+    duration: "/year",
+    sessions: "3 WhatsApp connections",
+    badge: "Best Value",
+    description: "Save big with annual billing — 3 connections for a full year at the lowest rate.",
+    features: [
+      "3 WhatsApp sessions",
+      "Full REST API access",
+      "Real-time webhooks",
+      "Group messaging",
+      "Polls, stickers, reactions",
+      "Priority email support",
+      "Effective ৳84/month"
+    ]
+  },
+  {
+    name: "Unlimited",
+    price: "৳600",
+    duration: "/month",
+    sessions: "Unlimited connections",
+    highlight: true,
+    description: "Power users and agencies — unlimited everything, premium support.",
+    features: [
+      "Unlimited WhatsApp sessions",
+      "Unlimited messages",
+      "Full REST API access",
+      "Real-time webhooks",
+      "Group messaging",
+      "Polls, stickers, reactions",
+      "MCP server integration",
+      "Premium support"
     ]
   }
 ];

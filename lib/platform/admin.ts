@@ -118,6 +118,24 @@ export type AdminAccessAction =
   | "expireAccess"
   | "deleteUser";
 
+export type AdminGrantPlan = "starter" | "pro" | "annual" | "unlimited";
+
+export type AdminAccessOptions = {
+  /** Days to add for extendTrial (default 2). */
+  trialDays?: number;
+  /** Plan key to grant for grantSubscription. */
+  plan?: AdminGrantPlan;
+  /** Days for the subscription period (default depends on plan). */
+  durationDays?: number;
+};
+
+const PLAN_DEFAULT_DURATION_DAYS: Record<AdminGrantPlan, number> = {
+  starter: 30,
+  pro: 60,
+  annual: 365,
+  unlimited: 30
+};
+
 function parseTimestamp(value?: string | null): number {
   if (!value) {
     return 0;
@@ -462,7 +480,8 @@ export async function getAdminOverview(): Promise<AdminOverview> {
 
 export async function applyAdminAccessAction(
   userId: string,
-  action: AdminAccessAction
+  action: AdminAccessAction,
+  options: AdminAccessOptions = {}
 ): Promise<void> {
   const supabase = getSupabaseAdminClient();
   const now = new Date();
@@ -479,11 +498,14 @@ export async function applyAdminAccessAction(
         throw error;
       }
 
+      const days = options.trialDays && options.trialDays > 0 ? options.trialDays : 2;
       const currentEnd =
         parseTimestamp(
           (data as { trial_ends_at?: string | null } | null)?.trial_ends_at || null
         ) || now.getTime();
-      const nextEnd = new Date(Math.max(currentEnd, now.getTime()) + 2 * 24 * 60 * 60 * 1000);
+      const nextEnd = new Date(
+        Math.max(currentEnd, now.getTime()) + days * 24 * 60 * 60 * 1000
+      );
       const { error: updateError } = await supabase
         .from("profiles")
         .update({
@@ -499,7 +521,14 @@ export async function applyAdminAccessAction(
     }
 
     case "grantSubscription": {
-      const expiresAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString();
+      const plan: AdminGrantPlan = options.plan || "unlimited";
+      const durationDays =
+        options.durationDays && options.durationDays > 0
+          ? options.durationDays
+          : PLAN_DEFAULT_DURATION_DAYS[plan];
+      const expiresAt = new Date(
+        now.getTime() + durationDays * 24 * 60 * 60 * 1000
+      ).toISOString();
 
       const { error: expireError } = await supabase
         .from("subscriptions")
@@ -516,7 +545,7 @@ export async function applyAdminAccessAction(
 
       const { error: insertError } = await supabase.from("subscriptions").insert({
         user_id: userId,
-        plan: "admin_override",
+        plan,
         status: "active",
         current_period_end: expiresAt
       });

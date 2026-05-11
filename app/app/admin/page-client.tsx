@@ -147,7 +147,8 @@ export function AdminDashboardClient() {
   async function runUserAction(
     userId: string,
     action: "extendTrial" | "grantSubscription" | "expireAccess" | "deleteUser",
-    userEmail?: string
+    userEmail?: string,
+    extras?: { plan?: string; durationDays?: number; trialDays?: number }
   ) {
     if (action === "deleteUser") {
       const confirmText = userEmail
@@ -165,7 +166,7 @@ export function AdminDashboardClient() {
       const res = await fetch(`/api/admin/users/${userId}/access`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action })
+        body: JSON.stringify({ action, ...(extras || {}) })
       });
       const body = await readJsonResponse<{ error?: string }>(res);
 
@@ -181,6 +182,103 @@ export function AdminDashboardClient() {
     } finally {
       setUserActionLoading("");
     }
+  }
+
+  function GrantSubscriptionControl({
+    userId,
+    userEmail
+  }: {
+    userId: string;
+    userEmail: string;
+  }) {
+    const [plan, setPlan] = useState<"starter" | "pro" | "annual" | "unlimited">("pro");
+    const [days, setDays] = useState<string>("");
+
+    const defaultDaysByPlan: Record<typeof plan, number> = {
+      starter: 30,
+      pro: 60,
+      annual: 365,
+      unlimited: 30
+    };
+
+    const effectiveDays =
+      days.trim() && Number(days) > 0 ? Math.floor(Number(days)) : defaultDaysByPlan[plan];
+
+    const loadingKey = `${userId}:grantSubscription`;
+    const isLoading = userActionLoading === loadingKey;
+
+    return (
+      <div className="flex flex-wrap items-center gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/[0.04] px-2.5 py-1.5">
+        <select
+          value={plan}
+          onChange={(event) => setPlan(event.target.value as typeof plan)}
+          disabled={isLoading}
+          className="rounded-lg border border-border bg-card px-2 py-1 text-xs font-medium text-foreground/80"
+        >
+          <option value="starter">Starter (1 session)</option>
+          <option value="pro">Pro (3 sessions)</option>
+          <option value="annual">Annual (3 sessions)</option>
+          <option value="unlimited">Unlimited</option>
+        </select>
+        <input
+          type="number"
+          min="1"
+          max="3650"
+          value={days}
+          onChange={(event) => setDays(event.target.value)}
+          placeholder={`${defaultDaysByPlan[plan]}d`}
+          disabled={isLoading}
+          className="w-16 rounded-lg border border-border bg-card px-2 py-1 text-xs text-foreground/80 placeholder:text-muted-foreground/50"
+          title="Custom duration in days"
+        />
+        <button
+          onClick={() =>
+            void runUserAction(userId, "grantSubscription", userEmail, {
+              plan,
+              durationDays: effectiveDays
+            })
+          }
+          disabled={isLoading}
+          className="rounded-lg bg-gradient-to-r from-emerald-500 to-cyan-500 px-3 py-1.5 text-xs font-semibold text-black transition hover:brightness-110 disabled:opacity-50"
+        >
+          {isLoading ? "Granting..." : `Grant ${effectiveDays}d`}
+        </button>
+      </div>
+    );
+  }
+
+  function ExtendTrialControl({ userId }: { userId: string }) {
+    const [days, setDays] = useState<string>("");
+    const effectiveDays = days.trim() && Number(days) > 0 ? Math.floor(Number(days)) : 2;
+    const loadingKey = `${userId}:extendTrial`;
+    const isLoading = userActionLoading === loadingKey;
+
+    return (
+      <div className="flex flex-wrap items-center gap-2 rounded-xl border border-border bg-muted/30 px-2.5 py-1.5">
+        <input
+          type="number"
+          min="1"
+          max="365"
+          value={days}
+          onChange={(event) => setDays(event.target.value)}
+          placeholder="2d"
+          disabled={isLoading}
+          className="w-16 rounded-lg border border-border bg-card px-2 py-1 text-xs text-foreground/80 placeholder:text-muted-foreground/50"
+          title="Days to add to trial"
+        />
+        <button
+          onClick={() =>
+            void runUserAction(userId, "extendTrial", undefined, {
+              trialDays: effectiveDays
+            })
+          }
+          disabled={isLoading}
+          className="rounded-lg border border-border bg-muted/30 px-3 py-1.5 text-xs font-semibold text-foreground/70 transition hover:border-accent/40 hover:text-foreground disabled:opacity-50"
+        >
+          {isLoading ? "Extending..." : `Extend trial +${effectiveDays}d`}
+        </button>
+      </div>
+    );
   }
 
   async function deleteAdminSession(sessionId: string) {
@@ -329,20 +427,8 @@ export function AdminDashboardClient() {
               </div>
 
               <div className="mt-4 flex flex-wrap gap-2">
-                <button
-                  onClick={() => void runUserAction(user.id, "extendTrial")}
-                  disabled={userActionLoading === `${user.id}:extendTrial`}
-                  className="rounded-xl border border-border bg-muted/30 px-3 py-2 text-xs font-semibold text-foreground/70 transition hover:border-accent/40 hover:text-foreground disabled:opacity-50"
-                >
-                  {userActionLoading === `${user.id}:extendTrial` ? "Updating..." : "Extend trial +2d"}
-                </button>
-                <button
-                  onClick={() => void runUserAction(user.id, "grantSubscription")}
-                  disabled={userActionLoading === `${user.id}:grantSubscription`}
-                  className="rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 px-3 py-2 text-xs font-semibold text-black transition hover:brightness-110 disabled:opacity-50"
-                >
-                  {userActionLoading === `${user.id}:grantSubscription` ? "Updating..." : "Grant 30d subscription"}
-                </button>
+                <ExtendTrialControl userId={user.id} />
+                <GrantSubscriptionControl userId={user.id} userEmail={user.email} />
                 <button
                   onClick={() => void runUserAction(user.id, "expireAccess")}
                   disabled={userActionLoading === `${user.id}:expireAccess`}

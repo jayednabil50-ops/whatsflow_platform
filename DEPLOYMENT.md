@@ -28,7 +28,9 @@
    - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
    - `SUPABASE_SERVICE_ROLE_KEY`
    - `NEXT_PUBLIC_APP_URL` (HTTPS domain)
-   - `WHATSFLOW_OWNER_EMAILS`
+   - `WHATSFLOW_OWNER_EMAILS` (e.g. `jayednabil50@gmail.com`)
+   - `WHATSFLOW_ADMIN_EMAIL` + `WHATSFLOW_ADMIN_PASSWORD` (for one-time bootstrap)
+   - `NEXT_PUBLIC_ADMIN_WHATSAPP` (your WhatsApp number for "Buy via WhatsApp" buttons, digits only e.g. `8801712345678`)
    - `WHATSFLOW_WORKER_SECRET` (64+ char random — `openssl rand -hex 32`)
 
 3. **Domain ready** (HTTPS required webhook এর জন্য)
@@ -163,9 +165,33 @@ fly deploy
 ## 🔐 Post-deploy
 
 1. **Test health endpoint:** `curl https://your-domain.com/api/health` → `{"status":"ok"}`
-2. **Login** with your owner email → admin panel access থাকা উচিত
-3. **First session create** → QR scan → connect verify করুন
-4. **Send test message** (text + image + sticker) — সব 3 verify করুন
+2. **Bootstrap admin user** — Render Shell বা locally (env এ pointing to production Supabase):
+   ```bash
+   npm run setup:admin
+   ```
+   এটা `WHATSFLOW_ADMIN_EMAIL` + `WHATSFLOW_ADMIN_PASSWORD` দিয়ে Supabase Auth এ owner account create করবে।
+3. **Login** with admin email + password → `/app/admin` panel এ যান → full owner access থাকা উচিত
+4. **First session create** → QR scan → connect verify করুন
+5. **Send test message** (text + image + sticker) — সব 3 verify করুন
+
+### Admin Panel Controls
+
+`/app/admin` page এ যেকোন user এর জন্য:
+
+- **Extend trial** — custom দিন (default 2)
+- **Grant subscription** — plan বেছে নিন (Starter/Pro/Annual/Unlimited) + custom duration (default plan অনুযায়ী)
+- **Expire access** — তাৎক্ষণিক revoke (সব live WhatsApp socket disconnect)
+- **Delete user** — full purge (irreversible)
+
+Plan → session limit mapping:
+- Starter: 1 WhatsApp session
+- Pro: 3 sessions
+- Annual: 3 sessions
+- Unlimited: ∞
+
+### "Buy via WhatsApp" Flow
+
+User pricing page এ "Buy via WhatsApp" click করলে — pre-filled message সহ `wa.me/<NEXT_PUBLIC_ADMIN_WHATSAPP>` এ redirect হবে। আপনি messages WhatsApp এ পাবেন, payment নেবেন, তারপর admin panel থেকে manually plan grant করবেন।
 
 ---
 

@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
   AdminAccessAction,
+  AdminAccessOptions,
+  AdminGrantPlan,
   applyAdminAccessAction
 } from "@/lib/platform/admin";
 import { requireOwnerWorkspace, WorkspaceAccessError } from "@/lib/platform/workspace";
@@ -18,6 +20,8 @@ const validActions = new Set<AdminAccessAction>([
   "deleteUser"
 ]);
 
+const validPlans = new Set<AdminGrantPlan>(["starter", "pro", "annual", "unlimited"]);
+
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -33,11 +37,25 @@ export async function POST(
       return NextResponse.json({ error: "Unsupported admin action." }, { status: 400 });
     }
 
-    await applyAdminAccessAction(id, action);
+    const options: AdminAccessOptions = {};
+    if (typeof body?.trialDays === "number" && body.trialDays > 0) {
+      options.trialDays = Math.min(365, Math.floor(body.trialDays));
+    }
+    if (typeof body?.durationDays === "number" && body.durationDays > 0) {
+      options.durationDays = Math.min(3650, Math.floor(body.durationDays));
+    }
+    if (typeof body?.plan === "string" && validPlans.has(body.plan as AdminGrantPlan)) {
+      options.plan = body.plan as AdminGrantPlan;
+    }
+
+    await applyAdminAccessAction(id, action, options);
 
     return NextResponse.json({
       success: true,
-      action
+      action,
+      ...(options.plan ? { plan: options.plan } : {}),
+      ...(options.durationDays ? { durationDays: options.durationDays } : {}),
+      ...(options.trialDays ? { trialDays: options.trialDays } : {})
     });
   } catch (error) {
     if (isAuthenticationError(error)) {

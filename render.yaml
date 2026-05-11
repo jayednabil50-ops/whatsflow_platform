@@ -31,3 +31,9 @@ services:
         sync: false
       - key: WHATSFLOW_OWNER_EMAILS
         sync: false
+      - key: WHATSFLOW_ADMIN_EMAIL
+        sync: false
+      - key: WHATSFLOW_ADMIN_PASSWORD
+        sync: false
+      - key: NEXT_PUBLIC_ADMIN_WHATSAPP
+        sync: false

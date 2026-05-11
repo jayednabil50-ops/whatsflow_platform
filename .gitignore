@@ -1,11 +1,48 @@
-.vercel
-.env*.local
+# Dependencies
+node_modules
+.pnp
+.pnp.js
+
+# Build artifacts
 .next
 .next-dev
-node_modules
-output
-sessions
-.playwright-cli
-.claude
+out
+build
 *.tsbuildinfo
+
+# Environment / secrets — NEVER commit these
+.env
+.env.local
+.env.*.local
+.env.production
+.env.development
+
+# Runtime / sessions data
+sessions
+output
+auth_info_baileys
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 dev-log.txt
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+.vscode
+.idea
+*.swp
+
+# CI / deploy artifacts
+.vercel
+.playwright-cli
+.netlify
+
+# Local agent state
+.claude
+
+# Test scratch
+test_auth
