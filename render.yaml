@@ -1,0 +1,33 @@
+services:
+  - type: web
+    name: whatsflow
+    runtime: node
+    region: singapore
+    plan: starter
+    buildCommand: npm ci && npm run build
+    startCommand: node scripts/render-start.js
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_TELEMETRY_DISABLED
+        value: "1"
+      - key: PORT
+        value: "3000"
+      - key: WHATSFLOW_WORKER_PORT
+        value: "3101"
+      - key: WHATSFLOW_WORKER_URL
+        value: http://127.0.0.1:3101
+      - key: WHATSFLOW_WORKER_SECRET
+        generateValue: true
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        sync: false
+      - key: NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: NEXT_PUBLIC_APP_URL
+        sync: false
+      - key: WHATSFLOW_OWNER_EMAILS
+        sync: false

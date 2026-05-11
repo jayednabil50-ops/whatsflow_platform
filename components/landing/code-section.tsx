@@ -11,7 +11,7 @@ const CODE: Record<Lang, string> = {
 
 $curl = curl_init();
 curl_setopt_array($curl, [
-  CURLOPT_URL => "https://api.wasenderapi.com/api/send-text",
+  CURLOPT_URL => "https://api.whatsflow.dev/api/send-message",
   CURLOPT_RETURNTRANSFER => true,
   CURLOPT_POST => true,
   CURLOPT_HTTPHEADER => [
@@ -19,8 +19,8 @@ curl_setopt_array($curl, [
     "Content-Type: application/json",
   ],
   CURLOPT_POSTFIELDS => json_encode([
-    "to"   => "6281234567890",
-    "text" => "Hello from WASenderAPI!",
+    "to"   => "8801234567890",
+    "text" => "Hello from WhatsFlow!",
   ]),
 ]);
 
@@ -30,7 +30,7 @@ curl_close($curl);
 echo $response;`,
 
   JS: `const response = await fetch(
-  "https://api.wasenderapi.com/api/send-text",
+  "https://api.whatsflow.dev/api/send-message",
   {
     method: "POST",
     headers: {
@@ -38,8 +38,8 @@ echo $response;`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      to:   "6281234567890",
-      text: "Hello from WASenderAPI!",
+      to:   "8801234567890",
+      text: "Hello from WhatsFlow!",
     }),
   }
 );
@@ -50,14 +50,14 @@ console.log(data);`,
   Python: `import requests
 
 response = requests.post(
-    "https://api.wasenderapi.com/api/send-text",
+    "https://api.whatsflow.dev/api/send-message",
     headers={
         "Authorization": "Bearer YOUR_API_KEY",
         "Content-Type": "application/json",
     },
     json={
-        "to":   "6281234567890",
-        "text": "Hello from WASenderAPI!",
+        "to":   "8801234567890",
+        "text": "Hello from WhatsFlow!",
     },
 )
 
@@ -72,8 +72,8 @@ client.DefaultRequestHeaders.Authorization =
         .AuthenticationHeaderValue("Bearer", "YOUR_API_KEY");
 
 var response = await client.PostAsJsonAsync(
-    "https://api.wasenderapi.com/api/send-text",
-    new { to = "6281234567890", text = "Hello from WASenderAPI!" }
+    "https://api.whatsflow.dev/api/send-message",
+    new { to = "8801234567890", text = "Hello from WhatsFlow!" }
 );
 
 var result = await response.Content.ReadAsStringAsync();
@@ -84,11 +84,11 @@ import java.net.http.*;
 
 var client  = HttpClient.newHttpClient();
 var payload = """
-    {"to":"6281234567890","text":"Hello from WASenderAPI!"}
+    {"to":"8801234567890","text":"Hello from WhatsFlow!"}
     """;
 
 var request = HttpRequest.newBuilder()
-    .uri(URI.create("https://api.wasenderapi.com/api/send-text"))
+    .uri(URI.create("https://api.whatsflow.dev/api/send-message"))
     .header("Authorization", "Bearer YOUR_API_KEY")
     .header("Content-Type", "application/json")
     .POST(HttpRequest.BodyPublishers.ofString(payload))

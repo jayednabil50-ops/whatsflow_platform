@@ -128,6 +128,24 @@ function buildContactVcard(input: {
   return lines.join("\n");
 }
 
+function isValidHttpUrl(value: string): boolean {
+  try {
+    const parsed = new URL(value);
+    return parsed.protocol === "http:" || parsed.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+function looksLikeWebpUrl(value: string): boolean {
+  try {
+    const path = new URL(value).pathname.toLowerCase();
+    return path.endsWith(".webp") || path.includes(".webp");
+  } catch {
+    return value.toLowerCase().includes(".webp");
+  }
+}
+
 function sanitizeMentions(value: unknown): string[] | undefined {
   if (!Array.isArray(value)) {
     return undefined;
@@ -296,6 +314,10 @@ function buildOutboundMessageSpec(body: OutboundMessageBody): {
   }
 
   if (mediaUrl && mediaType) {
+    if (!isValidHttpUrl(mediaUrl)) {
+      throw new Error("`mediaUrl` must be a valid http(s) URL.");
+    }
+
     const shared = {
       ...(caption ? { caption } : {}),
       ...(mentions ? { mentions } : {}),
@@ -323,17 +345,25 @@ function buildOutboundMessageSpec(body: OutboundMessageBody): {
           messageType: "video",
           bodyPreview: caption || "Video message"
         };
-      case "audio":
+      case "audio": {
+        const audioMime =
+          typeof body.mimetype === "string" && body.mimetype.trim()
+            ? body.mimetype.trim()
+            : body.voiceNote === true || body.ptt === true
+              ? "audio/ogg; codecs=opus"
+              : "audio/mp4";
+
         return {
           content: {
             audio: { url: mediaUrl },
-            ...(typeof body.mimetype === "string" ? { mimetype: body.mimetype } : {}),
+            mimetype: audioMime,
             ...(body.voiceNote === true || body.ptt === true ? { ptt: true } : {})
           },
           options,
           messageType: "audio",
           bodyPreview: caption || "Audio message"
         };
+      }
       case "document":
         return {
           content: {
@@ -348,7 +378,12 @@ function buildOutboundMessageSpec(body: OutboundMessageBody): {
           messageType: "document",
           bodyPreview: caption || "Document message"
         };
-      case "sticker":
+      case "sticker": {
+        if (!looksLikeWebpUrl(mediaUrl)) {
+          throw new Error(
+            "Stickers must be WebP format. Provide a `.webp` URL (max 512x512, <100KB recommended)."
+          );
+        }
         return {
           content: {
             sticker: { url: mediaUrl }
@@ -357,9 +392,16 @@ function buildOutboundMessageSpec(body: OutboundMessageBody): {
           messageType: "sticker",
           bodyPreview: "Sticker"
         };
+      }
       default:
-        throw new Error(`Unsupported media type: ${mediaType}.`);
+        throw new Error(
+          `Unsupported media type: "${mediaType}". Use image, video, audio, document, or sticker.`
+        );
     }
+  }
+
+  if (mediaUrl && !mediaType) {
+    throw new Error("`mediaType` is required when sending media. Use image, video, audio, document, or sticker.");
   }
 
   if (!text) {

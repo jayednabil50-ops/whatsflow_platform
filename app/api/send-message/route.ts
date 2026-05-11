@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { WorkspaceAccessError } from "@/lib/platform/workspace";
 import {
   PublicApiRequestError,
-  requirePublicApiSession
+  requirePublicApiSession,
+  resolvePublicApiTargetJid
 } from "@/lib/whatsapp/public-api";
 import {
   callWhatsAppWorker,
@@ -51,6 +52,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const resolvedJid = await resolvePublicApiTargetJid(session.id, target);
+
     const result = await callWhatsAppWorker<{
       success: boolean;
       sessionId: string;
@@ -63,7 +66,7 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify({
         ...body,
         userId: session.userId,
-        remoteJid: target
+        remoteJid: resolvedJid
       })
     });
 

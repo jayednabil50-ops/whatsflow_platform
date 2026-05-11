@@ -50,7 +50,7 @@ export class WorkspaceAccessError extends Error {
 }
 
 const DEFAULT_OWNER_EMAILS = ["jayednabil50@gmail.com"];
-const TRIAL_DURATION_MS = 2 * 24 * 60 * 60 * 1000;
+const TRIAL_DURATION_MS = 3 * 24 * 60 * 60 * 1000;
 const TRIAL_SESSION_LIMIT = 1;
 const ACTIVE_SUBSCRIPTION_STATUSES = new Set([
   "active",
@@ -133,7 +133,7 @@ export function getActivePlanLabel(plan?: string | null): string {
     case "owner":
       return "Owner unlimited";
     case "trial":
-      return "2-day trial";
+      return "3-day trial";
     case "expired":
       return "Trial expired";
     default:
@@ -268,12 +268,12 @@ export function getWorkspaceEntitlement(
       mode: "trial",
       hasActiveAccess: true,
       isUnlimited: false,
-      planLabel: "2-day trial",
+      planLabel: "3-day trial",
       sessionLimit: TRIAL_SESSION_LIMIT,
       expiresAt: trialEndsAt,
       trialEndsAt,
       subscriptionEndsAt: subscription?.current_period_end || null,
-      statusMessage: "Your 2-day free trial is active."
+      statusMessage: "Your 3-day free trial is active."
     };
   }
 
@@ -287,7 +287,7 @@ export function getWorkspaceEntitlement(
     trialEndsAt,
     subscriptionEndsAt: subscription?.current_period_end || null,
     statusMessage:
-      "Your 2-day free trial has ended. Start a subscription to reconnect this number."
+      "Your 3-day free trial has ended. Start a subscription to reconnect this number."
   };
 }
 

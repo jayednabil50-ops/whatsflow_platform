@@ -347,7 +347,7 @@ function mapRowToSession(row: SessionRow): SessionConfig {
     id: row.id,
     userId: row.user_id,
     name: row.name,
-    countryCode: row.country_code || "BD",
+    countryCode: row.country_code || "",
     phone: row.phone_number,
     webhookUrl: row.webhook_url || undefined,
     webhookSecret: row.webhook_secret || undefined,
@@ -644,6 +644,10 @@ export function updateSession(
     ...updates,
     updatedAt: Date.now()
   };
+
+  // BUGFIX: Immediately update in-memory Map so all subsequent reads
+  // return the latest state, not stale data from before the update.
+  sessionConfigs.set(id, updated);
 
   void persistSession(updated).catch((error) => {
     console.error("[SESSION] Failed to persist session update:", error);
