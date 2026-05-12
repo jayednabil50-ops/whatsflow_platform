@@ -18,8 +18,8 @@ build
 .env.development
 
 # Runtime / sessions data
-sessions
-output
+/sessions/
+/output/
 auth_info_baileys
 
 # Logs
