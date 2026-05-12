@@ -72,8 +72,8 @@ export function LoginForm() {
             <label className="text-sm font-medium" htmlFor="password">
               Password
             </label>
-            <Link href="/login" className="text-xs font-medium text-accent">
-              Need help?
+            <Link href="/api/auth/logout" className="text-xs font-medium text-accent">
+              Clear stuck session
             </Link>
           </div>
           <input
